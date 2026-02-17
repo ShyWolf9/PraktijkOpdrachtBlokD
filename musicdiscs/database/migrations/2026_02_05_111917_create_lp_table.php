@@ -19,7 +19,7 @@ return new class extends Migration
             $table->integer('price');
             $table->string('genre');
             $table->string('status');
-            $table->interger('in_stock');
+            $table->integer('in_stock');
             $table->string('cover_image')->nullable();
             $table->integer('number_of_tracks');
             $table->timestamps();

@@ -1,47 +1,54 @@
 @extends('layout.app')
 
 @section('content')
-    <div class="container mt-4">
-        <h1>Create New LP</h1>
-        <form action="{{ route('lps.store') }}" method="POST" enctype="multipart/form-data">
-            @csrf
-            <div class="mb-3">
-                <label for="album" class="form-label">Album Name</label>
-                <input type="text" class="form-control" id="album" name="album" required>
-            </div>
-            <div class="mb-3">
-                <label for="artist" class="form-label">Artist</label>
-                <input type="text" class="form-control" id="artist" name="artist" required>
-            </div>
-            <div class="mb-3">
-                <label for="release_year" class="form-label">Release Year</label>
-                <input type="number" class="form-control" id="release_year" name="release_year" required>
-            </div>
-            <div class="mb-3"></div>
-                <label for="price" class="form-label">Price</label>
-                <input type="number" class="form-control" id="price" name="price" required>
-            </div>
-            <div class="mb-3"></div>
-                <label for="genre" class="form-label">Genre</label>
-                <input type="text" class="form-control" id="genre" name="genre" required>
-            </div>
-            <div class="mb-3"></div>
-                <label for="status" class="form-label">Status</label>
-                <input type="text" class="form-control" id="status" name="status" required>
-            </div>
-            <div class="mb-3"></div>
-                <label for="in_stock" class="form-label">In Stock</label>
-                <input type="text" class="form-control" id="in_stock" name="in_stock" required>
-            </div>
-            <div class="mb-3"></div>
-                <label for="cover_image" class="form-label">Cover Image</label>
-                <input type="file" class="form-control" id="cover_image" name="cover_image">
-            </div>
-            <div class="mb-3"></div>
-                <label for="number_of_tracks" class="form-label">Number of Tracks</label>
-                <input type="number" class="form-control" id="number_of_tracks" name="number_of_tracks" required>
-            </div>
-            <button type="submit" class="btn btn-primary">Create LP</button>
-        </form>
-    </div>
+    <form action="{{ route('lps.store') }}" method="POST" enctype="multipart/form-data">
+        @csrf
+
+        <div class="mb-3">
+            <label for="album" class="form-label">Album Name</label>
+            <input type="text" class="form-control" id="album" name="album" required>
+        </div>
+
+        <div class="mb-3">
+            <label for="artist" class="form-label">Artist</label>
+            <input type="text" class="form-control" id="artist" name="artist" required>
+        </div>
+
+        <div class="mb-3">
+            <label for="release_year" class="form-label">Release Year</label>
+            <input type="number" class="form-control" id="release_year" name="release_year" required>
+        </div>
+
+        <div class="mb-3">
+            <label for="price" class="form-label">Price</label>
+            <input type="number" class="form-control" id="price" name="price" required>
+        </div>
+
+        <div class="mb-3">
+            <label for="genre" class="form-label">Genre</label>
+            <input type="text" class="form-control" id="genre" name="genre" required>
+        </div>
+
+        <div class="mb-3">
+            <label for="status" class="form-label">Status</label>
+            <input type="text" class="form-control" id="status" name="status" required>
+        </div>
+
+        <div class="mb-3">
+            <label for="in_stock" class="form-label">In Stock</label>
+            <input type="text" class="form-control" id="in_stock" name="in_stock" required>
+        </div>
+
+        <div class="mb-3">
+            <label for="cover_image" class="form-label">Cover Image</label>
+            <input type="file" class="form-control" id="cover_image" name="cover_image">
+        </div>
+
+        <div class="mb-3">
+            <label for="number_of_tracks" class="form-label">Number of Tracks</label>
+            <input type="number" class="form-control" id="number_of_tracks" name="number_of_tracks" required>
+        </div>
+
+        <button type="submit" class="btn btn-primary">Create LP</button>
+    </form>
 @endsection

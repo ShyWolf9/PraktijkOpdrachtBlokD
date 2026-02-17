@@ -2,10 +2,9 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\DB; // <- THIS IS IMPORTANT
 use App\Models\Lp;
-use Illuminate\Container\Attributes\DB;
 
 class LpSeeder extends Seeder
 {
@@ -37,6 +36,17 @@ class LpSeeder extends Seeder
                 'cover_image' => null,
                 'number_of_tracks' => 9,
             ],
+            [
+                'album' => 'The Dark Side of the Moon',
+                'artist' => 'Pink Floyd',
+                'release_year' => 1973,
+                'price' => 28,
+                'genre' => 'Progressive Rock',
+                'status' => 'Out of Stock',
+                'in_stock' => 0,
+                'cover_image' => null,
+                'number_of_tracks' => 10,
+            ]
         ]);
     }
 }

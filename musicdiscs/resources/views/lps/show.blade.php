@@ -4,7 +4,7 @@
     <div class="container mt-4">
         <h1>{{ $lp->album }} by {{ $lp->artist }}</h1>
         <p><strong>Release Year:</strong> {{ $lp->release_year }}</p>
-        <p><strong>Price:</strong> ${{ $lp->price }}</p>
+        <p><strong>Price:</strong> €{{ $lp->price }},-</p>
         <p><strong>Genre:</strong> {{ $lp->genre }}</p>
         <p><strong>Status:</strong> {{ $lp->status }}</p>
         <p><strong>In Stock:</strong> {{ $lp->in_stock }}</p>

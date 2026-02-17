@@ -29,7 +29,7 @@ class LpController extends Controller
      */
     public function store(Request $request)
     {
-        $request->validate([
+        $validated = $request->validate([
             'album' => 'required',
             'artist' => 'required',
             'release_year' => 'required|integer',
@@ -40,6 +40,11 @@ class LpController extends Controller
             'cover_image' => 'nullable|image',
             'number_of_tracks' => 'required|integer',
         ]);
+
+        Lp::create($validated);
+
+        return redirect()->route('lps.index')
+            ->with('success', 'LP created successfully.');
     }
 
     /**
@@ -65,7 +70,7 @@ class LpController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        $request->validate([
+        $validated = $request->validate([
             'album' => 'required',
             'artist' => 'required',
             'release_year' => 'required|integer',
@@ -76,6 +81,13 @@ class LpController extends Controller
             'cover_image' => 'nullable|image',
             'number_of_tracks' => 'required|integer',
         ]);
+
+
+        $lp = Lp::findOrFail($id);
+        $lp->update($validated);
+
+        return redirect()->route('lps.index')
+            ->with('success', 'LP updated successfully.');
     }
 
     /**
@@ -86,6 +98,6 @@ class LpController extends Controller
         $lp = Lp::findOrFail($id);
         $lp->delete();
 
-        return redirect()->route('lps.edit')->with('success', 'LP deleted successfully.');
+        return redirect()->route('lps.index')->with('success', 'LP deleted successfully.');
     }
 }

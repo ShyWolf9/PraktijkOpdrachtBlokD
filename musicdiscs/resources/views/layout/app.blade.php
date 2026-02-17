@@ -13,6 +13,7 @@
                 <div class="collapse navbar-collapse">
                     <ul class="navbar-nav ms-auto">
                         <li class="nav-item"><a class="nav-link" href="{{ route('lps.index') }}">View All LPs</a></li>
+                        <li class="nav-item"><a class="nav-link" href="{{ route('lps.create') }}">Add New LP</a></li>
                     </ul>
                 </div>
             </div>

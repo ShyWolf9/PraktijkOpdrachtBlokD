@@ -20,8 +20,13 @@
         </div>
 
         <div class="mb-3">
-            <label for="price" class="form-label">Price</label>
-            <input type="number" class="form-control" id="price" name="price" required>
+            <label for="price" class="form-label">Price (€)</label>
+            <input type="number" step="0.01" min="0" class="form-control @error('price') is-invalid @enderror" 
+                   id="price" name="price" value="{{ old('price', '10.00') }}" required>
+            @error('price')
+                <div class="invalid-feedback">{{ $message }}</div>
+            @enderror
+            <small class="text-muted">Enter the price in euros (e.g., 15.99)</small>
         </div>
 
         <div class="mb-3">

@@ -21,6 +21,13 @@
                                 <li class="nav-item"><a class="nav-link" href="{{ route('lps.create') }}">Add New LP</a></li>
                             @endif
                             <li class="nav-item"><a class="nav-link" href="{{ route('dashboard') }}">Dashboard</a></li>
+                            @if(auth()->user()->isUser())
+                                <li class="nav-item">
+                                    <span class="nav-link text-success fw-bold">
+                                        <i class="bi bi-wallet2"></i> €{{ number_format(auth()->user()->balance, 2) }}
+                                    </span>
+                                </li>
+                            @endif
                             <li class="nav-item dropdown">
                                 <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" 
                                    data-bs-toggle="dropdown" aria-expanded="false">

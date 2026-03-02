@@ -22,6 +22,7 @@ class User extends Authenticatable
         'email',
         'password',
         'role',
+        'balance',
     ];
 
     /**
@@ -80,5 +81,29 @@ class User extends Authenticatable
             return in_array($this->role, $roles);
         }
         return $this->role === $roles;
+    }
+
+    /**
+     * Get LPs created by this seller
+     */
+    public function lps()
+    {
+        return $this->hasMany(Lp::class);
+    }
+
+    /**
+     * Get purchases made by this user
+     */
+    public function purchases()
+    {
+        return $this->hasMany(Transaction::class, 'buyer_id');
+    }
+
+    /**
+     * Get sales made by this seller
+     */
+    public function sales()
+    {
+        return $this->hasMany(Transaction::class, 'seller_id');
     }
 }

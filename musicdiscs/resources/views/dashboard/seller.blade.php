@@ -34,6 +34,41 @@
             <div class="col-md-12">
                 <h1 class="mb-4">Seller Dashboard</h1>
                 
+                <div class="row mb-4">
+                    <div class="col-md-3">
+                        <div class="card bg-success text-white">
+                            <div class="card-body text-center">
+                                <h3>€{{ number_format(auth()->user()->balance, 2) }}</h3>
+                                <p class="mb-0">Account Balance</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card bg-primary text-white">
+                            <div class="card-body text-center">
+                                <h3>{{ auth()->user()->lps()->count() }}</h3>
+                                <p class="mb-0">Total Listings</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card bg-info text-white">
+                            <div class="card-body text-center">
+                                <h3>{{ auth()->user()->lps()->where('sold', false)->count() }}</h3>
+                                <p class="mb-0">Active Listings</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card bg-warning text-white">
+                            <div class="card-body text-center">
+                                <h3>{{ auth()->user()->sales()->count() }}</h3>
+                                <p class="mb-0">Items Sold</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
                 <div class="card shadow">
                     <div class="card-header bg-success text-white">
                         <h3 class="mb-0">Seller Tools</h3>
@@ -53,7 +88,7 @@
                                 <div class="card text-center">
                                     <div class="card-body">
                                         <h5 class="card-title">My Listings</h5>
-                                        <p class="card-text">View your LP listings</p>
+                                        <p class="card-text">View and manage your LP listings</p>
                                         <a href="{{ route('lps.index') }}" class="btn btn-success">View</a>
                                     </div>
                                 </div>
@@ -61,9 +96,9 @@
                             <div class="col-md-4 mb-3">
                                 <div class="card text-center">
                                     <div class="card-body">
-                                        <h5 class="card-title">Sales Reports</h5>
-                                        <p class="card-text">View your sales data</p>
-                                        <a href="#" class="btn btn-success">Reports</a>
+                                        <h5 class="card-title">Sales History</h5>
+                                        <p class="card-text">View your sales transactions</p>
+                                        <span class="badge bg-secondary">{{ auth()->user()->sales()->count() }} Sales</span>
                                     </div>
                                 </div>
                             </div>

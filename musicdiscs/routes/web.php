@@ -39,16 +39,17 @@ Route::middleware('auth')->group(function () {
     Route::get('/lps', [LpController::class, 'index'])->name('lps.index');
     Route::get('/lps/{lp}', [LpController::class, 'show'])->name('lps.show');
     
+    // Purchase route - users only
+    Route::middleware('role:user')->group(function () {
+        Route::post('/lps/{lp}/purchase', [LpController::class, 'purchase'])->name('lps.purchase');
+    });
+    
     // LP Creation/Editing - only for admin and seller
     Route::middleware('role:admin,seller')->group(function () {
         Route::get('/lps/create', [LpController::class, 'create'])->name('lps.create');
         Route::post('/lps', [LpController::class, 'store'])->name('lps.store');
         Route::get('/lps/{lp}/edit', [LpController::class, 'edit'])->name('lps.edit');
         Route::put('/lps/{lp}', [LpController::class, 'update'])->name('lps.update');
-    });
-    
-    // LP Deletion - only for admin
-    Route::middleware('role:admin')->group(function () {
         Route::delete('/lps/{lp}', [LpController::class, 'destroy'])->name('lps.destroy');
     });
 });

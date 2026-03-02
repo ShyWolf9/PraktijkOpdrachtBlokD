@@ -56,6 +56,7 @@ class AuthController extends Controller
             'email' => $validated['email'],
             'password' => Hash::make($validated['password']),
             'role' => $validated['role'] ?? 'user',
+            'balance' => 50.00, // €50 registration bonus
         ]);
 
         Auth::login($user);

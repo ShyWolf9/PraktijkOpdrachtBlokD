@@ -9,6 +9,7 @@ class Lp extends Model
     protected $table = 'lp';
 
     protected $fillable = [
+        'user_id',
         'album',
         'artist',
         'release_year',
@@ -18,5 +19,14 @@ class Lp extends Model
         'in_stock',
         'cover_image',
         'number_of_tracks',
+        'sold',
     ];
+
+    /**
+     * Get the seller (user) who created this LP
+     */
+    public function seller()
+    {
+        return $this->belongsTo(User::class, 'user_id');
+    }
 }

@@ -73,8 +73,8 @@
                             <div class="col-md-4 mb-3">
                                 <div class="card bg-success text-white">
                                     <div class="card-body">
-                                        <h5 class="card-title">Email</h5>
-                                        <p class="card-text">{{ $user->email }}</p>
+                                        <h5 class="card-title">Account Balance</h5>
+                                        <p class="card-text display-6">€{{ number_format($user->balance, 2) }}</p>
                                     </div>
                                 </div>
                             </div>

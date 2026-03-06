@@ -20,6 +20,7 @@
                             @if(auth()->user()->isAdmin() || auth()->user()->isSeller())
                                 <li class="nav-item"><a class="nav-link" href="{{ route('lps.create') }}">Add New LP</a></li>
                             @endif
+                            <li class="nav-item"><a class="nav-link" href="{{ route('games.guess-number') }}">Guess Game</a></li>
                             <li class="nav-item"><a class="nav-link" href="{{ route('dashboard') }}">Dashboard</a></li>
                             @if(auth()->user()->isUser())
                                 <li class="nav-item">

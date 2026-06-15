@@ -15,7 +15,7 @@ class LpSeeder extends Seeder
     {
         // Get seller user ID
         $sellerId = DB::table('users')->where('email', 'seller@example.com')->value('id');
-        
+
         DB::table('lp')->insert([
             [
                 'user_id' => $sellerId,

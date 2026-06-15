@@ -7,6 +7,7 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
 <body class="bg-light">
+    @php $user = auth()->user(); @endphp
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark mb-4">
         <div class="container">
             <a class="navbar-brand" href="{{ route('dashboard') }}">Music Discs</a>
@@ -18,18 +19,24 @@
                     <li class="nav-item">
                         <a class="nav-link" href="{{ route('lps.index') }}">LP's</a>
                     </li>
-                    @if($user->isAdmin() || $user->isSeller())
+                    @if($user && ($user->isAdmin() || $user->isSeller()))
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ route('lps.my-listings') }}">My LPs</a>
+                        </li>
                         <li class="nav-item">
                             <a class="nav-link" href="{{ route('lps.create') }}">Add LP</a>
                         </li>
                     @endif
-                    @if($user->isAdmin())
+                    @if($user && $user->isAdmin())
                         <li class="nav-item">
                             <a class="nav-link" href="{{ route('dashboard.admin') }}">Admin Panel</a>
                         </li>
                     @endif
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ route('account.switcher') }}">Switch Account</a>
+                    </li>
                     <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" 
+                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button"
                            data-bs-toggle="dropdown" aria-expanded="false">
                             {{ $user->name }} ({{ ucfirst($user->role) }})
                         </a>
@@ -60,7 +67,7 @@
                 <div class="card shadow">
                     <div class="card-body p-5">
                         <h1 class="mb-4">Welcome, {{ $user->name }}!</h1>
-                        
+
                         <div class="row">
                             <div class="col-md-4 mb-3">
                                 <div class="card bg-primary text-white">
@@ -106,12 +113,12 @@
                             @endif
                         </div>
 
-                        @if($user->isAdmin())
+                        @if($user && $user->isAdmin())
                             <div class="alert alert-warning mt-4" role="alert">
                                 <h5 class="alert-heading">Admin Access</h5>
                                 <p>You have full administrative privileges. You can manage all users, LP's, and system settings.</p>
                             </div>
-                        @elseif($user->isSeller())
+                        @elseif($user && $user->isSeller())
                             <div class="alert alert-info mt-4" role="alert">
                                 <h5 class="alert-heading">Seller Access</h5>
                                 <p>You can add, edit, and manage LP listings in the catalog.</p>

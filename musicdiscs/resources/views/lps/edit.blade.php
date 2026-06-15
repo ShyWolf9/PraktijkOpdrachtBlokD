@@ -21,8 +21,14 @@
         </div>
 
         <div class="mb-3">
-            <label for="price" class="form-label">Price</label>
-            <input type="number" class="form-control" id="price" name="price" value="{{ $lp->price }}" required>
+            <label for="price" class="form-label">Price (€)</label>
+            <input type="number" step="0.01" min="0" class="form-control" id="price" name="price" value="{{ $lp->price }}" required>
+        </div>
+
+        <div class="mb-3">
+            <label for="sale_price" class="form-label">Sale Price (€) - Optional</label>
+            <input type="number" step="0.01" min="0" class="form-control" id="sale_price" name="sale_price" value="{{ $lp->sale_price ?? '' }}" placeholder="Leave empty if no sale">
+            <small class="text-muted">Set a lower price to put the LP on sale</small>
         </div>
 
         <div class="mb-3">

@@ -19,6 +19,12 @@
                         <a class="nav-link" href="{{ route('lps.index') }}">LP's</a>
                     </li>
                     <li class="nav-item">
+                        <a class="nav-link" href="{{ route('lps.my-listings') }}">My LPs</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ route('account.switcher') }}">Switch Account</a>
+                    </li>
+                    <li class="nav-item">
                         <form method="POST" action="{{ route('logout') }}" class="d-inline">
                             @csrf
                             <button type="submit" class="nav-link btn btn-link">Logout</button>
@@ -33,7 +39,7 @@
         <div class="row">
             <div class="col-md-12">
                 <h1 class="mb-4">Admin Panel</h1>
-                
+
                 <div class="card shadow mb-4">
                     <div class="card-header bg-danger text-white">
                         <h3 class="mb-0">Administrator Controls</h3>

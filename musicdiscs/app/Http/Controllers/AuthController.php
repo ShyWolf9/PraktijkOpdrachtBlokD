@@ -9,6 +9,18 @@ use App\Models\User;
 
 class AuthController extends Controller
 {
+    private function rememberAccount(Request $request, int $userId): void
+    {
+        $remembered = collect($request->session()->get('remembered_account_ids', []))
+            ->map(fn ($id) => (int) $id)
+            ->push($userId)
+            ->unique()
+            ->values()
+            ->all();
+
+        $request->session()->put('remembered_account_ids', $remembered);
+    }
+
     public function showLogin()
     {
         if (Auth::check()) {
@@ -26,6 +38,11 @@ class AuthController extends Controller
 
         if (Auth::attempt($credentials, $request->filled('remember'))) {
             $request->session()->regenerate();
+
+            /** @var \App\Models\User $user */
+            $user = Auth::user();
+            $this->rememberAccount($request, $user->id);
+
             return redirect()->intended(route('dashboard'))->with('success', 'Welcome back!');
         }
 
@@ -60,8 +77,33 @@ class AuthController extends Controller
         ]);
 
         Auth::login($user);
+        $this->rememberAccount($request, $user->id);
 
         return redirect()->route('dashboard')->with('success', 'Account created successfully!');
+    }
+
+    public function switchAccount(Request $request, User $user)
+    {
+        Auth::login($user, true);
+        $request->session()->regenerate();
+        $this->rememberAccount($request, $user->id);
+
+        return redirect()->route('dashboard')->with('success', 'Switched account to ' . $user->name . '.');
+    }
+
+    public function switcher(Request $request)
+    {
+        $rememberedAccountIds = collect($request->session()->get('remembered_account_ids', []))
+            ->map(fn ($id) => (int) $id)
+            ->unique()
+            ->filter(fn ($id) => $id !== Auth::id())
+            ->values();
+
+        $accounts = $rememberedAccountIds->isNotEmpty()
+            ? User::whereIn('id', $rememberedAccountIds->all())->orderBy('name')->get()
+            : User::where('id', '!=', Auth::id())->orderBy('name')->get();
+
+        return view('auth.switch-account', compact('accounts'));
     }
 
     public function logout(Request $request)

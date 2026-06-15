@@ -21,7 +21,7 @@ class CheckRole
         }
 
         $user = auth()->user();
-        
+
         if (!$user->hasRole($roles)) {
             abort(403, 'Unauthorized access. You do not have the required role.');
         }

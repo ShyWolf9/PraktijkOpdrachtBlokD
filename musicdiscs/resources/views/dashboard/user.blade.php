@@ -19,6 +19,9 @@
                         <a class="nav-link" href="{{ route('lps.index') }}">LP's</a>
                     </li>
                     <li class="nav-item">
+                        <a class="nav-link" href="{{ route('account.switcher') }}">Switch Account</a>
+                    </li>
+                    <li class="nav-item">
                         <form method="POST" action="{{ route('logout') }}" class="d-inline">
                             @csrf
                             <button type="submit" class="nav-link btn btn-link">Logout</button>
@@ -33,7 +36,7 @@
         <div class="row">
             <div class="col-md-12">
                 <h1 class="mb-4">User Dashboard</h1>
-                
+
                 <div class="row mb-4">
                     <div class="col-md-4">
                         <div class="card bg-success text-white">
@@ -60,7 +63,7 @@
                         </div>
                     </div>
                 </div>
-                
+
                 <div class="card shadow">
                     <div class="card-header bg-primary text-white">
                         <h3 class="mb-0">Browse & Shop</h3>
@@ -86,10 +89,10 @@
                                 </div>
                             </div>
                         </div>
-                        
+
                         @if(auth()->user()->balance < 10)
                             <div class="alert alert-warning mt-3">
-                                <strong>Low Balance!</strong> You have €{{ number_format(auth()->user()->balance, 2) }} remaining. 
+                                <strong>Low Balance!</strong> You have €{{ number_format(auth()->user()->balance, 2) }} remaining.
                                 Most LP's are priced around €10-20.
                             </div>
                         @endif

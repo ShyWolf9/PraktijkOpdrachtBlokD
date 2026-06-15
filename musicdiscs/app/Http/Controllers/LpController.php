@@ -7,6 +7,8 @@ use App\Models\Lp;
 use App\Models\Transaction;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
 
 class LpController extends Controller
 {
@@ -17,34 +19,114 @@ class LpController extends Controller
     {
         $user = Auth::user();
         $search = request('search');
-        
-        // If seller, show only their own LPs
+
+        // filtering / sorting inputs
+        $sortBy = request('sort_by'); // views, year, alphabet, price
+        $order = request('order', 'desc');
+        $year = request('year');
+        $minPrice = request('min_price');
+        $maxPrice = request('max_price');
+
+        // Build base query
         if ($user && $user->isSeller()) {
-            $lps = Lp::with('seller')
-                ->where('user_id', $user->id)
-                ->when($search, function ($query, $search) {
-                    $query->where('album', 'like', '%' . $search . '%');
-                })
-                ->get();
+            $query = Lp::with('seller')->where('user_id', $user->id);
         } else {
-            // Admin and users see all available LPs
-            $lps = Lp::with('seller')
-                ->where('sold', false)
-                ->when($search, function ($query, $search) {
-                    $query->where('album', 'like', '%' . $search . '%');
-                })
-                ->get();
+            $query = Lp::with('seller')->where('sold', false);
         }
-        
-        return view('lps.index', compact('lps', 'search'));
+
+        // Search
+        if ($search) {
+            $query->where('album', 'like', '%' . $search . '%');
+        }
+
+        // Year filter (exact match)
+        if ($year) {
+            $query->where('release_year', $year);
+        }
+
+        // Price range filter (use sale_price if present)
+        if ($minPrice !== null && $minPrice !== '') {
+            $query->whereRaw('COALESCE(sale_price, price) >= ?', [$minPrice]);
+        }
+        if ($maxPrice !== null && $maxPrice !== '') {
+            $query->whereRaw('COALESCE(sale_price, price) <= ?', [$maxPrice]);
+        }
+
+        // Sorting
+        if ($sortBy === 'views') {
+            $query->orderBy('clicks', $order);
+        } elseif ($sortBy === 'year') {
+            $query->orderBy('release_year', $order);
+        } elseif ($sortBy === 'alphabet') {
+            $query->orderBy('album', $order);
+        } elseif ($sortBy === 'price') {
+            $query->orderByRaw('COALESCE(sale_price, price) ' . ($order === 'asc' ? 'ASC' : 'DESC'));
+        } else {
+            // default ordering
+            $query->orderBy('created_at', 'desc');
+        }
+
+        $lps = $query->get();
+
+        return view('lps.index', compact('lps', 'search', 'sortBy', 'order', 'year', 'minPrice', 'maxPrice'));
     }
 
     /**
-     * Show the form for creating a new resource.
+     * Display user's own LPs (for sellers and admins)
+     */
+    public function myListings()
+    {
+        $user = Auth::user();
+        $search = request('search');
+
+        $lps = Lp::with('seller')
+            ->where('user_id', $user->id)
+            ->when($search, function ($query, $search) {
+                $query->where('album', 'like', '%' . $search . '%');
+            })
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        return view('lps.my-listings', compact('lps', 'search'));
+    }
+
+    /**
+     * Show the form for creating a new resource - Step 1: Artist
      */
     public function create()
     {
-        return view('lps.create');
+        return view('lps.create-step1');
+    }
+
+    /**
+     * Step 2: Album name
+     */
+    public function createStep2(Request $request)
+    {
+        $request->validate([
+            'artist' => 'required|string|max:255',
+        ]);
+
+        session(['lp_create.artist' => $request->artist]);
+
+        return view('lps.create-step2');
+    }
+
+    /**
+     * Step 3: Rest of the information
+     */
+    public function createStep3(Request $request)
+    {
+        $request->validate([
+            'album' => 'required|string|max:255',
+        ]);
+
+        session(['lp_create.album' => $request->album]);
+
+        $artist = session('lp_create.artist');
+        $album = session('lp_create.album');
+
+        return view('lps.create-step3', compact('artist', 'album'));
     }
 
     /**
@@ -53,21 +135,53 @@ class LpController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'album' => 'required',
-            'artist' => 'required',
             'release_year' => 'required|integer',
             'price' => 'required|numeric|min:0',
+            'sale_price' => 'nullable|numeric|min:0',
             'genre' => 'required',
             'status' => 'required',
             'in_stock' => 'required',
-            'cover_image' => 'nullable|image',
+            'cover_images.*' => 'nullable|image',
+            'cover_images' => 'nullable|array',
             'number_of_tracks' => 'required|integer',
         ]);
 
+        $validated['artist'] = session('lp_create.artist');
+        $validated['album'] = session('lp_create.album');
         $validated['user_id'] = Auth::id();
         $validated['sold'] = false;
 
-        Lp::create($validated);
+        $lp = Lp::create($validated);
+
+        // Handle multiple image uploads
+        if ($request->hasFile('cover_images')) {
+            $files = $request->file('cover_images');
+            Log::info('Received ' . count($files) . ' uploaded cover_images files for LP id: ' . $lp->id);
+            foreach ($files as $file) {
+                if ($file && $file->isValid()) {
+                    try {
+                        $path = $file->store('lps', 'public');
+                        Log::info('Stored file to ' . $path);
+                        $lp->images()->create(['path' => $path]);
+                    } catch (\Exception $e) {
+                        Log::error('Failed storing uploaded file: ' . $e->getMessage());
+                    }
+                } else {
+                    Log::warning('Invalid uploaded file encountered while processing LP images.');
+                }
+            }
+            // ensure storage dir exists and list files for debugging
+            try {
+                $filesList = Storage::disk('public')->files('lps');
+                Log::info('Files in storage/app/public/lps: ' . implode(', ', $filesList));
+            } catch (\Exception $e) {
+                Log::error('Failed to list storage files: ' . $e->getMessage());
+            }
+        } else {
+            Log::info('No cover_images files in request for LP id: ' . $lp->id);
+        }
+
+        session()->forget('lp_create');
 
         return redirect()->route('lps.index')
             ->with('success', 'LP created successfully.');
@@ -79,6 +193,14 @@ class LpController extends Controller
     public function show(string $id)
     {
         $lp = Lp::with('seller')->findOrFail($id);
+        // increment view counter on each visit
+        try {
+            $lp->increment('clicks');
+            $lp->refresh();
+        } catch (\Exception $e) {
+            // if DB column missing or increment fails, continue without breaking the page
+        }
+
         return view('lps.show', compact('lp'));
     }
 
@@ -88,12 +210,12 @@ class LpController extends Controller
     public function edit(string $id)
     {
         $lp = Lp::findOrFail($id);
-        
+
         // Sellers can only edit their own LPs
         if (Auth::user()->isSeller() && $lp->user_id !== Auth::id()) {
             abort(403, 'You can only edit your own LP listings.');
         }
-        
+
         return view('lps.edit', compact('lp'));
     }
 
@@ -107,21 +229,51 @@ class LpController extends Controller
             'artist' => 'required',
             'release_year' => 'required|integer',
             'price' => 'required|numeric|min:0',
+            'sale_price' => 'nullable|numeric|min:0',
             'genre' => 'required',
             'status' => 'required',
             'in_stock' => 'required',
             'cover_image' => 'nullable|image',
+            'cover_images' => 'nullable|array',
+            'cover_images.*' => 'nullable|image',
             'number_of_tracks' => 'required|integer',
         ]);
 
         $lp = Lp::findOrFail($id);
-        
+
         // Sellers can only update their own LPs
         if (Auth::user()->isSeller() && $lp->user_id !== Auth::id()) {
             abort(403, 'You can only edit your own LP listings.');
         }
-        
+
         $lp->update($validated);
+
+        // Handle image uploads from the edit form (single or multiple)
+        if ($request->hasFile('cover_images')) {
+            foreach ($request->file('cover_images') as $file) {
+                if ($file && $file->isValid()) {
+                    try {
+                        $path = $file->store('lps', 'public');
+                        $lp->images()->create(['path' => $path]);
+                    } catch (\Exception $e) {
+                        Log::error('Failed storing uploaded file in update: ' . $e->getMessage());
+                    }
+                }
+            }
+        }
+
+        // Support legacy single-file input named cover_image
+        if ($request->hasFile('cover_image')) {
+            $file = $request->file('cover_image');
+            if ($file && $file->isValid()) {
+                try {
+                    $path = $file->store('lps', 'public');
+                    $lp->images()->create(['path' => $path]);
+                } catch (\Exception $e) {
+                    Log::error('Failed storing uploaded single cover_image in update: ' . $e->getMessage());
+                }
+            }
+        }
 
         return redirect()->route('lps.index')
             ->with('success', 'LP updated successfully.');
@@ -133,12 +285,12 @@ class LpController extends Controller
     public function destroy(string $id)
     {
         $lp = Lp::findOrFail($id);
-        
+
         // Only admin or the seller who created it can delete
         if (Auth::user()->isSeller() && $lp->user_id !== Auth::id()) {
             abort(403, 'You can only delete your own LP listings.');
         }
-        
+
         $lp->delete();
 
         return redirect()->route('lps.index')
@@ -163,20 +315,23 @@ class LpController extends Controller
             return back()->with('error', 'You cannot buy your own LP.');
         }
 
+        // Use sale price if available, otherwise use regular price
+        $purchasePrice = $lp->sale_price ?? $lp->price;
+
         // Check if user has enough balance
-        if ($buyer->balance < $lp->price) {
-            return back()->with('error', 'Insufficient balance. You need €' . number_format($lp->price - $buyer->balance, 2) . ' more.');
+        if ($buyer->balance < $purchasePrice) {
+            return back()->with('error', 'Insufficient balance. You need €' . number_format($purchasePrice - $buyer->balance, 2) . ' more.');
         }
 
         DB::beginTransaction();
         try {
             // Deduct from buyer
-            $buyer->balance -= $lp->price;
+            $buyer->balance -= $purchasePrice;
             $buyer->save();
 
             // Add to seller
             $seller = $lp->seller;
-            $seller->balance += $lp->price;
+            $seller->balance += $purchasePrice;
             $seller->save();
 
             // Mark LP as sold
@@ -188,7 +343,7 @@ class LpController extends Controller
                 'buyer_id' => $buyer->id,
                 'seller_id' => $seller->id,
                 'lp_id' => $lp->id,
-                'amount' => $lp->price,
+                'amount' => $purchasePrice,
                 'type' => 'purchase',
             ]);
 

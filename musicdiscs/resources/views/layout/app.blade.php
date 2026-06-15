@@ -7,6 +7,7 @@
         <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     </head>
     <body class="bg-light">
+        @php $user = auth()->user(); @endphp
         <nav class="navbar navbar-expand-lg navbar-dark bg-dark mb-4">
             <div class="container">
                 <a class="navbar-brand" href="{{ route('lps.index') }}">LP's</a>
@@ -17,24 +18,60 @@
                     <ul class="navbar-nav ms-auto">
                         <li class="nav-item"><a class="nav-link" href="{{ route('lps.index') }}">View All LPs</a></li>
                         @auth
-                            @if(auth()->user()->isAdmin() || auth()->user()->isSeller())
+                            @if($user && ($user->isAdmin() || $user->isSeller()))
+                                <li class="nav-item"><a class="nav-link" href="{{ route('lps.my-listings') }}">My LPs</a></li>
                                 <li class="nav-item"><a class="nav-link" href="{{ route('lps.create') }}">Add New LP</a></li>
                             @endif
                             <li class="nav-item"><a class="nav-link" href="{{ route('games.guess-number') }}">Guess Game</a></li>
+                            <li class="nav-item"><a class="nav-link" href="{{ route('account.switcher') }}">Switch Account</a></li>
                             <li class="nav-item"><a class="nav-link" href="{{ route('dashboard') }}">Dashboard</a></li>
-                            @if(auth()->user()->isUser())
+                            @if($user && $user->isUser())
                                 <li class="nav-item">
                                     <span class="nav-link text-success fw-bold">
-                                        <i class="bi bi-wallet2"></i> €{{ number_format(auth()->user()->balance, 2) }}
+                                        <i class="bi bi-wallet2"></i> €{{ number_format($user->balance ?? 0, 2) }}
                                     </span>
                                 </li>
                             @endif
                             <li class="nav-item dropdown">
-                                <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" 
+                                <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button"
                                    data-bs-toggle="dropdown" aria-expanded="false">
-                                    {{ auth()->user()->name }}
+                                    {{ $user->name ?? 'Account' }}
                                 </a>
                                 <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+                                    @php
+                                        $rememberedAccountIds = collect(session('remembered_account_ids', []))
+                                            ->map(fn ($id) => (int) $id)
+                                            ->unique()
+                                            ->filter(fn ($id) => $id !== auth()->id())
+                                            ->values();
+
+                                        $switchableAccounts = $rememberedAccountIds->isNotEmpty()
+                                            ? \App\Models\User::whereIn('id', $rememberedAccountIds->all())
+                                                ->orderBy('name')
+                                                ->get()
+                                            : \App\Models\User::where('id', '!=', auth()->id())
+                                                ->orderBy('name')
+                                                ->get();
+                                    @endphp
+
+                                    <li>
+                                        <h6 class="dropdown-header">Switch account</h6>
+                                    </li>
+                                    @forelse($switchableAccounts as $switchableAccount)
+                                        <li>
+                                            <form method="POST" action="{{ route('account.switch', $switchableAccount->id) }}">
+                                                @csrf
+                                                <button type="submit" class="dropdown-item">
+                                                    {{ $switchableAccount->name }} ({{ $switchableAccount->role }})
+                                                </button>
+                                            </form>
+                                        </li>
+                                    @empty
+                                        <li>
+                                            <span class="dropdown-item-text text-muted">No other accounts found</span>
+                                        </li>
+                                    @endforelse
+                                    <li><hr class="dropdown-divider"></li>
                                     <li>
                                         <form method="POST" action="{{ route('logout') }}">
                                             @csrf

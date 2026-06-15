@@ -6,11 +6,11 @@
             <div class="col-md-6 col-lg-5">
                 <div class="card shadow">
                     <div class="card-header bg-primary text-white">
-                        <h3 class="mb-0">Create New LP - Step 2/3</h3>
+                        <h3 class="mb-0">Create New LP - Step 2/5</h3>
                     </div>
                     <div class="card-body p-4">
                         <div class="progress mb-4">
-                            <div class="progress-bar" role="progressbar" style="width: 66%" aria-valuenow="66" aria-valuemin="0" aria-valuemax="100"></div>
+                            <div class="progress-bar" role="progressbar" style="width: 40%" aria-valuenow="40" aria-valuemin="0" aria-valuemax="100"></div>
                         </div>
 
                         <div class="alert alert-info mb-3">

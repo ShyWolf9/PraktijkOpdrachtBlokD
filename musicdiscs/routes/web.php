@@ -59,6 +59,8 @@ Route::middleware('auth')->group(function () {
         Route::get('/lps/create', [LpController::class, 'create'])->name('lps.create');
         Route::post('/lps/create/step2', [LpController::class, 'createStep2'])->name('lps.create-step2');
         Route::post('/lps/create/step3', [LpController::class, 'createStep3'])->name('lps.create-step3');
+        Route::post('/lps/create/step4', [LpController::class, 'createStep4'])->name('lps.create-step4');
+        Route::post('/lps/create/step5', [LpController::class, 'createStep5'])->name('lps.create-step5');
         Route::post('/lps', [LpController::class, 'store'])->name('lps.store');
         Route::get('/lps/{lp}/edit', [LpController::class, 'edit'])->name('lps.edit');
         Route::put('/lps/{lp}', [LpController::class, 'update'])->name('lps.update');

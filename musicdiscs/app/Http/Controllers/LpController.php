@@ -113,7 +113,7 @@ class LpController extends Controller
     }
 
     /**
-     * Step 3: Rest of the information
+     * Step 3: Upload images
      */
     public function createStep3(Request $request)
     {
@@ -123,10 +123,60 @@ class LpController extends Controller
 
         session(['lp_create.album' => $request->album]);
 
-        $artist = session('lp_create.artist');
-        $album = session('lp_create.album');
+        return view('lps.create-step3');
+    }
 
-        return view('lps.create-step3', compact('artist', 'album'));
+    /**
+     * Step 4: LP Details
+     */
+    public function createStep4(Request $request)
+    {
+        // Handle image uploads from step 3
+        if ($request->hasFile('cover_images')) {
+            $files = $request->file('cover_images');
+            Log::info('Received ' . count($files) . ' uploaded cover_images files in step 3');
+
+            $storedPaths = [];
+            foreach ($files as $file) {
+                if ($file && $file->isValid()) {
+                    try {
+                        $storedPaths[] = $file->store('lps/tmp', 'public');
+                    } catch (\Exception $e) {
+                        Log::error('Failed storing temporary uploaded file: ' . $e->getMessage());
+                    }
+                }
+            }
+
+            session(['lp_create.cover_images_temp' => $storedPaths]);
+        }
+
+        return view('lps.create-step4');
+    }
+
+    /**
+     * Step 5: Optional sale
+     */
+    public function createStep5(Request $request)
+    {
+        $validated = $request->validate([
+            'release_year' => 'required|integer',
+            'genre' => 'required|string|max:255',
+            'number_of_tracks' => 'required|integer',
+            'status' => 'required|string|max:255',
+            'in_stock' => 'required|string|max:255',
+            'price' => 'required|numeric|min:0',
+        ]);
+
+        session([
+            'lp_create.release_year' => $validated['release_year'],
+            'lp_create.genre' => $validated['genre'],
+            'lp_create.number_of_tracks' => $validated['number_of_tracks'],
+            'lp_create.status' => $validated['status'],
+            'lp_create.in_stock' => $validated['in_stock'],
+            'lp_create.price' => $validated['price'],
+        ]);
+
+        return view('lps.create-step5');
     }
 
     /**
@@ -134,51 +184,34 @@ class LpController extends Controller
      */
     public function store(Request $request)
     {
+        // Validate optional sale price from step 5
         $validated = $request->validate([
-            'release_year' => 'required|integer',
-            'price' => 'required|numeric|min:0',
             'sale_price' => 'nullable|numeric|min:0',
-            'genre' => 'required',
-            'status' => 'required',
-            'in_stock' => 'required',
-            'cover_images.*' => 'nullable|image',
-            'cover_images' => 'nullable|array',
-            'number_of_tracks' => 'required|integer',
         ]);
 
+        // Add data from all previous steps (stored in session)
         $validated['artist'] = session('lp_create.artist');
         $validated['album'] = session('lp_create.album');
+        $validated['release_year'] = session('lp_create.release_year');
+        $validated['price'] = session('lp_create.price');
+        $validated['genre'] = session('lp_create.genre');
+        $validated['status'] = session('lp_create.status');
+        $validated['in_stock'] = session('lp_create.in_stock');
+        $validated['number_of_tracks'] = session('lp_create.number_of_tracks');
         $validated['user_id'] = Auth::id();
         $validated['sold'] = false;
 
         $lp = Lp::create($validated);
 
-        // Handle multiple image uploads
-        if ($request->hasFile('cover_images')) {
-            $files = $request->file('cover_images');
-            Log::info('Received ' . count($files) . ' uploaded cover_images files for LP id: ' . $lp->id);
-            foreach ($files as $file) {
-                if ($file && $file->isValid()) {
-                    try {
-                        $path = $file->store('lps', 'public');
-                        Log::info('Stored file to ' . $path);
-                        $lp->images()->create(['path' => $path]);
-                    } catch (\Exception $e) {
-                        Log::error('Failed storing uploaded file: ' . $e->getMessage());
-                    }
-                } else {
-                    Log::warning('Invalid uploaded file encountered while processing LP images.');
+        // Handle image uploads from step 3 (if any were stored in session)
+        $tempFiles = session('lp_create.cover_images_temp');
+        if ($tempFiles) {
+            Log::info('Processing ' . count($tempFiles) . ' images from session for LP id: ' . $lp->id);
+            foreach ($tempFiles as $path) {
+                if ($path) {
+                    $lp->images()->create(['path' => $path]);
                 }
             }
-            // ensure storage dir exists and list files for debugging
-            try {
-                $filesList = Storage::disk('public')->files('lps');
-                Log::info('Files in storage/app/public/lps: ' . implode(', ', $filesList));
-            } catch (\Exception $e) {
-                Log::error('Failed to list storage files: ' . $e->getMessage());
-            }
-        } else {
-            Log::info('No cover_images files in request for LP id: ' . $lp->id);
         }
 
         session()->forget('lp_create');

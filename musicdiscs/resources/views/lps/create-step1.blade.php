@@ -6,11 +6,11 @@
             <div class="col-md-6 col-lg-5">
                 <div class="card shadow">
                     <div class="card-header bg-primary text-white">
-                        <h3 class="mb-0">Create New LP - Step 1/3</h3>
+                        <h3 class="mb-0">Create New LP - Step 1/5</h3>
                     </div>
                     <div class="card-body p-4">
                         <div class="progress mb-4">
-                            <div class="progress-bar" role="progressbar" style="width: 33%" aria-valuenow="33" aria-valuemin="0" aria-valuemax="100"></div>
+                            <div class="progress-bar" role="progressbar" style="width: 20%" aria-valuenow="20" aria-valuemin="0" aria-valuemax="100"></div>
                         </div>
 
                         <form action="{{ route('lps.create-step2') }}" method="POST">

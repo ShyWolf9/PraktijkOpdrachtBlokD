@@ -77,16 +77,6 @@
                                 </div>
                             </div>
 
-                            <div class="mb-3">
-                                <label for="sale_price" class="form-label fw-bold">Sale Price (€) - Optional</label>
-                                <input type="number" step="0.01" min="0" class="form-control @error('sale_price') is-invalid @enderror"
-                                       id="sale_price" name="sale_price" value="{{ old('sale_price', '') }}" placeholder="Leave empty if no sale">
-                                @error('sale_price')
-                                    <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror
-                                <small class="text-muted">Set a lower price to put the LP on sale (optional)</small>
-                            </div>
-
                             <div class="d-flex justify-content-between gap-2">
                                 <button type="button" class="btn btn-outline-secondary btn-lg flex-grow-1" onclick="history.back();">
                                     <i class="bi bi-arrow-left"></i> Back

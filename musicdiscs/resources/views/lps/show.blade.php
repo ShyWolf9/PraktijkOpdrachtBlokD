@@ -52,12 +52,12 @@
                     <div class="row mb-3">
                         <div class="col-md-4">
                             <label class="form-label fw-bold">Original Price (€)</label>
-                            <input type="number" step="0.01" class="form-control form-control-lg bg-light" name="price" value="{{ $lp->price }}" required 
+                            <input type="number" step="0.01" class="form-control form-control-lg bg-light" name="price" value="{{ $lp->price }}" required
                                    @if($user && $user->isSeller() && $lp->user_id !== $user->id) readonly @endif>
                         </div>
                         <div class="col-md-4">
                             <label class="form-label fw-bold text-danger">Sale Price (€) - Optional</label>
-                            <input type="number" step="0.01" class="form-control form-control-lg border-danger" name="sale_price" 
+                            <input type="number" step="0.01" class="form-control form-control-lg border-danger" name="sale_price"
                                    value="{{ $lp->sale_price ?? '' }}" placeholder="Set sale price"
                                    @if($user && $user->isSeller() && $lp->user_id !== $user->id) readonly @endif>
                             <small class="text-muted">Leave empty to remove sale</small>
@@ -66,7 +66,7 @@
                             <label class="form-label fw-bold">Current Selling Price</label>
                             <div class="input-group">
                                 <span class="input-group-text bg-success text-white fs-4">€</span>
-                                <input type="text" class="form-control form-control-lg fw-bold text-success" 
+                                <input type="text" class="form-control form-control-lg fw-bold text-success"
                                        value="{{ number_format($lp->sale_price ?? $lp->price, 2) }}" readonly>
                             </div>
                             @if($lp->sale_price && $lp->sale_price < $lp->price)

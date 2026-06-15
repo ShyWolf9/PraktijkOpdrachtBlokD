@@ -138,13 +138,13 @@
                                 <a href="{{ route('lps.show', $lp->id) }}" class="btn btn-info btn-sm">
                                     <i class="bi bi-eye"></i> View
                                 </a>
-                                
+
                                 @if(($user && $user->isAdmin()) || ($user && $user->isSeller() && $lp->user_id === $user->id))
                                     <a href="{{ route('lps.edit', $lp->id) }}" class="btn btn-warning btn-sm">
                                         <i class="bi bi-pencil"></i> Edit
                                     </a>
-                                    
-                                    <form action="{{ route('lps.destroy', $lp->id) }}" method="POST" class="d-inline" 
+
+                                    <form action="{{ route('lps.destroy', $lp->id) }}" method="POST" class="d-inline"
                                           onsubmit="return confirm('Are you sure you want to delete this LP?')">
                                         @csrf
                                         @method('DELETE')
@@ -162,7 +162,7 @@
                                         @endphp
                                         <button type="submit" class="btn btn-success btn-sm"
                                                 @if($user && $user->balance < $purchasePrice) disabled @endif>
-                                            <i class="bi bi-cart-plus"></i> 
+                                            <i class="bi bi-cart-plus"></i>
                                             @if($user && $user->balance < $purchasePrice)
                                                 Insufficient Funds
                                             @else

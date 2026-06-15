@@ -18,7 +18,7 @@
 
                             <div class="mb-3">
                                 <label for="artist" class="form-label fw-bold">Artist Name</label>
-                                <input type="text" class="form-control form-control-lg @error('artist') is-invalid @enderror" 
+                                <input type="text" class="form-control form-control-lg @error('artist') is-invalid @enderror"
                                        id="artist" name="artist" value="{{ old('artist') }}" required autofocus>
                                 @error('artist')
                                     <div class="invalid-feedback">{{ $message }}</div>

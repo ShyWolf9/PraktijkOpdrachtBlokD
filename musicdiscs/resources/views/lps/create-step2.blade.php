@@ -22,7 +22,7 @@
 
                             <div class="mb-3">
                                 <label for="album" class="form-label fw-bold">Album Name</label>
-                                <input type="text" class="form-control form-control-lg @error('album') is-invalid @enderror" 
+                                <input type="text" class="form-control form-control-lg @error('album') is-invalid @enderror"
                                        id="album" name="album" value="{{ old('album') }}" required autofocus>
                                 @error('album')
                                     <div class="invalid-feedback">{{ $message }}</div>

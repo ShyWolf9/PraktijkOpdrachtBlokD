@@ -74,12 +74,12 @@
                 reader.onload = function(e) {
                     const div = document.createElement('div');
                     div.style.cssText = 'position:relative; width:120px; margin-bottom:10px;';
-                    
+
                     const img = document.createElement('img');
                     img.src = e.target.result;
                     img.className = 'img-thumbnail';
                     img.style.cssText = 'width:100%; height:120px; object-fit:cover;';
-                    
+
                     const removeBtn = document.createElement('button');
                     removeBtn.type = 'button';
                     removeBtn.className = 'btn btn-danger btn-sm';
@@ -94,7 +94,7 @@
                         fileInput.files = dataTransfer.files;
                         fileInput.dispatchEvent(new Event('change', { bubbles: true }));
                     };
-                    
+
                     div.appendChild(img);
                     div.appendChild(removeBtn);
                     previewContainer.appendChild(div);

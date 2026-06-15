@@ -15,31 +15,40 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // Create sample users for each role
-        $admin = User::create([
-            'name' => 'Admin User',
-            'email' => 'admin@example.com',
-            'password' => bcrypt('password'),
-            'role' => 'admin',
-            'balance' => 1000.00, // Admin starts with more balance
-        ]);
+        // Admin
+        User::firstOrCreate(
+            ['email' => 'admin@example.com'],
+            [
+                'name' => 'Admin User',
+                'password' => bcrypt('password'),
+                'role' => 'admin',
+                'balance' => 1000.00,
+            ]
+        );
 
-        $seller = User::create([
-            'name' => 'Seller User',
-            'email' => 'seller@example.com',
-            'password' => bcrypt('password'),
-            'role' => 'seller',
-            'balance' => 50.00,
-        ]);
+        // Seller
+        User::firstOrCreate(
+            ['email' => 'seller@example.com'],
+            [
+                'name' => 'Seller User',
+                'password' => bcrypt('password'),
+                'role' => 'seller',
+                'balance' => 50.00,
+            ]
+        );
 
-        $user = User::create([
-            'name' => 'Regular User',
-            'email' => 'user@example.com',
-            'password' => bcrypt('password'),
-            'role' => 'user',
-            'balance' => 50.00,
-        ]);
+        // Regular user
+        User::firstOrCreate(
+            ['email' => 'user@example.com'],
+            [
+                'name' => 'Regular User',
+                'password' => bcrypt('password'),
+                'role' => 'user',
+                'balance' => 50.00,
+            ]
+        );
 
         $this->call(LpSeeder::class);
+
     }
 }

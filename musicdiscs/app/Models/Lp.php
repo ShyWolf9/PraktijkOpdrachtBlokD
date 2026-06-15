@@ -5,9 +5,12 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Http\File;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Lp extends Model
 {
+    use HasFactory;
+
     protected $table = 'lp';
 
     protected $fillable = [
